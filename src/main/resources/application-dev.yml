@@ -1,0 +1,59 @@
+server:
+  port: 8080
+app.id: 00000001
+
+spring:
+  datasource:
+    username: root
+    password: root
+    url: jdbc:mysql://47.99.132.55:3306/distribution?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    driver-class-name: com.mysql.jdbc.Driver
+
+  redis:
+    host: 47.99.132.55
+    port: 6379
+    timeout: 5000
+    #    集群环境打开下面注释，单机不需要打开
+    #    cluster:
+    #      集群信息
+    #      nodes: xxx.xxx.xxx.xxx:xxxx,xxx.xxx.xxx.xxx:xxxx,xxx.xxx.xxx.xxx:xxxx
+    #      #默认值是5 一般当此值设置过大时，容易报：Too many Cluster redirections
+    #      maxRedirects: 3
+    jedis:
+      pool:
+        max-active: 8
+        min-idle: 0
+        max-idle: 8
+        max-wait: -1
+    password: long
+
+kafka:
+  bootstrap-servers: 47.99.132.55:9092
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  consumer:
+    group-id: test
+    enable-auto-commit: true
+    auto-commit-interval: 1000
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#  topic:
+#    group-id: 0
+#        topic-name:
+#          - topic1
+#          - topic2
+#          - topic3
+
+
+mybatis:
+  mapper-locations: classpath:mapper/*Mapper.xml
+  type-aliases-package: com.example.demo
+
+#showSql
+logging:
+  level:
+    com:
+      example:
+        mapper : debug
+
