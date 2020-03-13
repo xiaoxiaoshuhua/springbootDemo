@@ -1,12 +1,13 @@
 package com.example.demo1.aop.proxy;
 
 import com.example.demo1.aop.baseTest.MyAdvisor;
-import org.springframework.cglib.proxy.InvocationHandler;
-import org.springframework.cglib.proxy.Proxy;
 import org.springframework.util.ClassUtils;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyJdkDynamicAopProxy implements InvocationHandler, MyAopProxy, Serializable {
@@ -17,6 +18,10 @@ public class MyJdkDynamicAopProxy implements InvocationHandler, MyAopProxy, Seri
 
     private List<MyAdvisor> matchedAdvisors;
 
+    private List<Class<?>> interfaces = new ArrayList<>();
+
+
+
     public MyJdkDynamicAopProxy(Object target, Class beanType, List<MyAdvisor> matchedAdvisors) {
         this.target = target;
         this.beanType = beanType;
@@ -25,7 +30,16 @@ public class MyJdkDynamicAopProxy implements InvocationHandler, MyAopProxy, Seri
 
     @Override
     public Object getProxy() {
-        return Proxy.newProxyInstance(ClassUtils.getDefaultClassLoader(), beanType.getInterfaces(), this);
+        Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanType, ClassUtils.getDefaultClassLoader());
+        boolean hasReasonableProxyInterface = true;
+        if (hasReasonableProxyInterface) {
+            // Must allow for introductions; can't just set interfaces to the target's interfaces only.
+            for (Class<?> ifc : targetInterfaces) {
+                interfaces.add(ifc);
+            }
+        }
+        Class<?>[] proxyInterfaces = (Class<?>[]) interfaces.toArray();
+        return Proxy.newProxyInstance(ClassUtils.getDefaultClassLoader(), proxyInterfaces, this);
     }
 
     @Override
