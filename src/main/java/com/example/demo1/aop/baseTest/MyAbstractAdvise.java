@@ -1,6 +1,8 @@
 package com.example.demo1.aop.baseTest;
 
-public abstract class MyAbstractAdvise implements MyAdvise {
+import org.aopalliance.intercept.MethodInterceptor;
+
+public abstract class MyAbstractAdvise implements MyAdvise , MethodInterceptor {
 
     private Class beanType;
 
@@ -11,4 +13,15 @@ public abstract class MyAbstractAdvise implements MyAdvise {
         this.methodName = methodName;
     }
 
+    public Class getBeanType() {
+        return beanType;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
 }

@@ -25,7 +25,9 @@ public class MyAspectJTest {
 
     @MyAround("execution(* com.example.demo1.aop..*.*(..))")
     public void doAround(MyJoinPoint pointTest) throws Throwable {
-        this.log.info("[***Service-Aound-Test***]执行参数：");
+        this.log.info("[***Service-Aound1-Test***]执行参数：");
+        pointTest.proceed();
+        this.log.info("[***Service-Aound2-Test***]执行参数：");
     }
 
     @MyAfter("execution(* com.example.demo1.aop..*.*(..))")

@@ -33,4 +33,9 @@ public class MyAspectJExpressionPointcut implements MyJoinPoint {
     public Boolean matched(String beanClassName, String methodName) {
         return null;
     }
+
+    @Override
+    public Object proceed() throws Throwable {
+        return null;
+    }
 }

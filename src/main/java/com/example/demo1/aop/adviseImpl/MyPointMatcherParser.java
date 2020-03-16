@@ -71,6 +71,11 @@ public class MyPointMatcherParser implements MyJoinPoint {
         return false;
     }
 
+    @Override
+    public Object proceed() throws Throwable {
+        return null;
+    }
+
     public String getExpression() {
         return expression;
     }

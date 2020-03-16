@@ -17,7 +17,9 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
@@ -47,6 +49,9 @@ public class MyAspectJAutoProxyCreator implements BeanPostProcessor, BeanFactory
      */
     private Map<String, MyPointMatcherParser> pointMatcherParserMap = new HashMap<>();
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     /**
      * 需要汇集所有的expression跟对应的处理method
      */
@@ -65,7 +70,7 @@ public class MyAspectJAutoProxyCreator implements BeanPostProcessor, BeanFactory
         List<MyAdvisor> matchedAdvisorsOfBean = getMatchedAdvisorsOfBean(beanName, bean.getClass());
         if (!CollectionUtils.isEmpty(matchedAdvisorsOfBean)) {
             Object proxy = createProxy(
-                    bean.getClass(), beanName, matchedAdvisorsOfBean, bean);
+                    bean.getClass(), beanName, matchedAdvisorsOfBean, bean,applicationContext);
             return proxy;
         }
         return bean;
@@ -74,8 +79,8 @@ public class MyAspectJAutoProxyCreator implements BeanPostProcessor, BeanFactory
     /**
      * 创建代理
      */
-    private Object createProxy(Class<?> beanType, String beanName, List<MyAdvisor> matchedAdvisorsOfBean, Object sourceBean) {
-        return new MyJdkDynamicAopProxy(sourceBean, beanType, matchedAdvisorsOfBean);
+    private Object createProxy(Class<?> beanType, String beanName, List<MyAdvisor> matchedAdvisorsOfBean, Object sourceBean,ApplicationContext applicationContext) {
+        return new MyJdkDynamicAopProxy(sourceBean, beanType, matchedAdvisorsOfBean,applicationContext).getProxy();
     }
 
     /**
@@ -110,6 +115,7 @@ public class MyAspectJAutoProxyCreator implements BeanPostProcessor, BeanFactory
                 for (Method method : beanType.getDeclaredMethods()) {
                     MyAspectJAdvisor myAspectJAdvisor = new MyAspectJAdvisor();
                     if (method.isAnnotationPresent(MyBefore.class)) {
+                        myAspectJAdvisor.setOrder(1);
                         MyBefore annotation = method.getAnnotation(MyBefore.class);
                         //构造advise对象
                         MyMethodBeforeAbstractAdvise myMethodBeforeAdvise = new MyMethodBeforeAbstractAdvise();
@@ -120,6 +126,7 @@ public class MyAspectJAutoProxyCreator implements BeanPostProcessor, BeanFactory
                         advisors.add(myAspectJAdvisor);
                     }
                     if (method.isAnnotationPresent(MyAround.class)) {
+                        myAspectJAdvisor.setOrder(0);
                         MyAround annotation = method.getAnnotation(MyAround.class);
                         //构造advise对象
                         MyMethodAroundAbstractAdvise myMethodAroundAdvise = new MyMethodAroundAbstractAdvise();
@@ -130,6 +137,7 @@ public class MyAspectJAutoProxyCreator implements BeanPostProcessor, BeanFactory
                         advisors.add(myAspectJAdvisor);
                     }
                     if (method.isAnnotationPresent(MyAfter.class)) {
+                        myAspectJAdvisor.setOrder(-1);
                         MyAfter annotation = method.getAnnotation(MyAfter.class);
                         //构造advise对象
                         MyMethodAfterAbstractAdvise myMethodAfterAbstractAdvise = new MyMethodAfterAbstractAdvise();
